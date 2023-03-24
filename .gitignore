@@ -1,6 +1,14 @@
 # Visual Studio 2015 user specific files
 .vs/
 
+# Ignore everything but source
+Assets
+Binaries
+DerivedDataCache
+Intermediate
+Saved
+Content
+
 # Compiled Object files
 *.slo
 *.lo
@@ -72,12 +80,3 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-
-Assets
-Binaries
-DerivedDataCache
-Intermediate
-Saved
-Content
-
-
