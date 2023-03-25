@@ -10,6 +10,10 @@
  * 
  */
 
+// Forward Declares
+class USceneComponent;
+class UBoxComponent;
+
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
 {
@@ -28,11 +32,30 @@ public:
 	void Equip(USceneComponent* InParent, FName SocketName);
 	void Unequip(USceneComponent* InParent, FName SocketName);
 
+	// Constructor
+	AWeapon();
+
 	UPROPERTY(BlueprintReadWrite)
 	EWeaponState WeaponState = EWeaponState::EWS_OnGround;
+
+	FORCEINLINE UBoxComponent* GetWeaponBoxCollider() const { return WeaponBoxCollider; }
 
 protected:
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	
+	UFUNCTION()
+	void OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
+	// Start and end variables for our trace
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* BoxTraceStart;
+
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* BoxTraceEnd;
+	
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* WeaponBoxCollider;
 	
 };

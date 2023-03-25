@@ -58,6 +58,10 @@ protected:
 	// Check whether we can sheathe/unsheathe
 	bool CanSheathe();
 
+	// Toggle box collider of the currently equipped weapon.
+	UFUNCTION(BlueprintCallable)
+	void ToggleWeaponCollision(ECollisionEnabled::Type CollisionsToggle);
+
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState;
 
@@ -66,6 +70,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AWeapon* EquippedWeapon;
+
+
 
 private:
 

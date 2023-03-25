@@ -9,6 +9,7 @@
 #include "Weapon.h"
 #include "Item.h"
 #include "Animation/AnimMontage.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -212,6 +213,15 @@ bool APlayerCharacter::CanSheathe() {
 		&& EquippedWeapon;
 }
 
+// Get the box collider component of the equipped weapon, set collisions enabled.
+void APlayerCharacter::ToggleWeaponCollision(ECollisionEnabled::Type CollisionsToggle)
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->GetWeaponBoxCollider()->SetCollisionEnabled(CollisionsToggle);
+	}
+}
+
 // Call these functions after notify end
 void APlayerCharacter::SheatheWeapon()
 {
@@ -227,3 +237,4 @@ void APlayerCharacter::UnsheatheWeapon()
 		EquippedWeapon->Equip(GetMesh(), FName("SpineSocket"));
 	}
 }
+
