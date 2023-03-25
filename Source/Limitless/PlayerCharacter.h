@@ -13,6 +13,7 @@ class USpringArmComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 
 UCLASS()
 class LIMITLESS_API APlayerCharacter : public ACharacter
@@ -45,15 +46,26 @@ protected:
 	void LookRight(float Value);
 	void Attack();
 	void HeavyAttack();
+	void Sheathe();
+
+	UFUNCTION(BlueprintCallable)
+	void SheatheWeapon();
+	UFUNCTION(BlueprintCallable)
+	void UnsheatheWeapon();
 
 	// Check our attack conditions
 	bool CanAttack();
+	// Check whether we can sheathe/unsheathe
+	bool CanSheathe();
 
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState;
 
 	UPROPERTY(BlueprintReadWrite)
 	EActionState CharacterActionState;
+
+	UPROPERTY(BlueprintReadOnly)
+	AWeapon* EquippedWeapon;
 
 private:
 
@@ -75,6 +87,8 @@ private:
 	/* Montages */
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackMontage;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* EquipMontage;
 
 };
