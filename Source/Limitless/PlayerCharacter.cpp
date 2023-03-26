@@ -61,7 +61,8 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::EquipButtonPressed()
 {
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
-	if (OverlappingWeapon) {
+	if (OverlappingWeapon) 
+	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		// We only have a 2H weapon, so for now just set the state to 2H
 		CharacterState = ECharacterState::ECS_TwoHanded;
@@ -104,7 +105,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 // Find the controller's forward vector and apply movement in that direction.
 void APlayerCharacter::MoveForward(float Value) 
 {
-	if (CharacterActionState == EActionState::EAS_Unoccupied && Controller && Value != 0.f) {
+	if (CharacterActionState == EActionState::EAS_Unoccupied && Controller && Value != 0.f) 
+	{
 		// Get the Yaw (Z-Component) of the control rotation
 		const FRotator ControlRotation = GetControlRotation();
 		const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
@@ -146,7 +148,8 @@ void APlayerCharacter::Attack()
 	// Get the animation instance
 	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
 	// If AttackMontage is set && current instance exists && we have a one or twohanded weapon equipped.
-	if (CurrentInstance && CanAttack()) {
+	if (CurrentInstance && CanAttack()) 
+	{
 		// Play the attack montage, jumping to section attack1.
 		CharacterActionState = EActionState::EAS_Attacking;
 		CurrentInstance->Montage_Play(AttackMontage);
@@ -158,7 +161,8 @@ void APlayerCharacter::Attack()
 void APlayerCharacter::HeavyAttack()
 {
 	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
-	if (CurrentInstance && CanAttack()) {
+	if (CurrentInstance && CanAttack())
+	{
 		// Play the heavy attack section of the attack montage, set state to attacking.
 		CharacterActionState = EActionState::EAS_Attacking;
 		CurrentInstance->Montage_Play(AttackMontage);
@@ -181,11 +185,13 @@ void APlayerCharacter::Sheathe() {
 	// Get the animation montage
 	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
 	// Early return if no equipped weapon or the current animation instance doesn't exist.
-	if (!CurrentInstance || !EquippedWeapon) {
+	if (!CurrentInstance || !EquippedWeapon)
+	{
 		return;
 	}
 	// If the equipped weapon is on our back and we are not occupied
-	if ((EquippedWeapon->WeaponState == EWeaponState::EWS_OnBack) && CanSheathe()) {
+	if ((EquippedWeapon->WeaponState == EWeaponState::EWS_OnBack) && CanSheathe())
+	{
 		CharacterActionState = EActionState::EAS_Occupied;
 		CurrentInstance->Montage_Play(EquipMontage);
 		CurrentInstance->Montage_JumpToSection(FName("DrawTwoHanded"));
@@ -194,7 +200,8 @@ void APlayerCharacter::Sheathe() {
 		
 	}
 	// If the equipped weapon is in our hand and we are not occupied
-	else if ((EquippedWeapon->WeaponState == EWeaponState::EWS_InHand) && CanSheathe()) {
+	else if ((EquippedWeapon->WeaponState == EWeaponState::EWS_InHand) && CanSheathe()) 
+	{
 		CharacterActionState = EActionState::EAS_Occupied;
 		CurrentInstance->Montage_Play(EquipMontage);
 		CurrentInstance->Montage_JumpToSection(FName("SheatheTwoHanded"));
@@ -225,7 +232,8 @@ void APlayerCharacter::ToggleWeaponCollision(ECollisionEnabled::Type CollisionsT
 // Call these functions after notify end
 void APlayerCharacter::SheatheWeapon()
 {
-	if (EquippedWeapon) {
+	if (EquippedWeapon) 
+	{
 		EquippedWeapon->Unequip(GetMesh(), FName("SpineSocket"));
 	}
 }
@@ -233,7 +241,8 @@ void APlayerCharacter::SheatheWeapon()
 // Call after notify end
 void APlayerCharacter::UnsheatheWeapon()
 {
-	if (EquippedWeapon) {
+	if (EquippedWeapon) 
+	{
 		EquippedWeapon->Equip(GetMesh(), FName("SpineSocket"));
 	}
 }

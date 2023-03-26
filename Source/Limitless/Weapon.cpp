@@ -4,13 +4,14 @@
 #include "Weapon.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "HitInterface.h"
 
 AWeapon::AWeapon()
 {
 	WeaponBoxCollider = CreateDefaultSubobject<UBoxComponent>(FName("Weapon Hitbox"));
 	WeaponBoxCollider->SetupAttachment(GetRootComponent());
-	// We want the box collider to overlap most channels
-	WeaponBoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	// No collisions unless we are attacking.
+	WeaponBoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponBoxCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	WeaponBoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponBoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -63,24 +64,19 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	TArray<AActor*> ActorsToIgnore{ this };
 	FHitResult HitResult;
 
-	bool bSuccess = UKismetSystemLibrary::BoxTraceSingle(
-		this, StartLocation,
-		EndLocation,
-		HalfSize,
-		WeaponBoxCollider->GetComponentRotation(),
-		ETraceTypeQuery::TraceTypeQuery1,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
-		HitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		2.0f
-	);
+	bool bSuccess = UKismetSystemLibrary::BoxTraceSingle(this, StartLocation,EndLocation,HalfSize,WeaponBoxCollider->GetComponentRotation(),ETraceTypeQuery::TraceTypeQuery1,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true,FLinearColor::Red,FLinearColor::Green,2.0f);
 
-	if (bSuccess) {
+	if (bSuccess)
+	{
+		// Try to cast the actor hit into a HitInterface
+		IHitInterface* HitObject = Cast<IHitInterface>(HitResult.GetActor());
+		// If the object hit can be casted to Hit Interface
+		if (HitObject)
+		{
+			HitObject->GetHit(HitResult.ImpactPoint);
+		}
 		UE_LOG(LogTemp, Warning, TEXT("HIT OBJECT"));
+		
 	}
 
 }

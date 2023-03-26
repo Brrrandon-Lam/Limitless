@@ -47,7 +47,8 @@ void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	UE_LOG(LogTemp, Warning, TEXT("Overlapped with actor: %s"), *OverlappedActor);
 
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-	if (PlayerCharacter) {
+	if (PlayerCharacter) 
+	{
 		PlayerCharacter->SetOverlappingItem(this);
 	}
 
@@ -57,7 +58,8 @@ void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
 
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(OtherActor);
-	if (PlayerCharacter) {
+	if (PlayerCharacter)
+	{
 		// Unset the overlapping item.
 		PlayerCharacter->SetOverlappingItem(nullptr);
 	}
