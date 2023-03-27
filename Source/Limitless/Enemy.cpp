@@ -97,22 +97,27 @@ void AEnemy::PlayHitDirectionAnimation(const double angle)
 	}
 	// Print Front, Back, Left, Right depending on the angle.
 	// Front: -45 <= x <= 45
-	if (angle >= -45 && angle <= 45) {
+	if (angle >= -45 && angle <= 45) 
+	{
 		PlayHitReactionMontage(FName("FrontHitReaction"));
 	}
 	// Back: Angle is greater than 135 or less than -135
-	else if (angle >= 135 || angle <= -135) {
+	else if (angle >= 135 || angle <= -135) 
+	{
 		PlayHitReactionMontage(FName("BackHitReaction"));
 	}
 	// Left: -135 < x < -45
-	else if (angle > -135 && angle < -45) {
+	else if (angle > -135 && angle < -45) 
+	{
 		PlayHitReactionMontage(FName("LeftHitReaction"));
 	}
 	// Right: 45 < x < 135
-	else if (angle > 45 && angle < 135) {
+	else if (angle > 45 && angle < 135) 
+	{
 		PlayHitReactionMontage(FName("RightHitReaction"));
 	}
-	else {
+	else 
+	{
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, FString("ERROR"));
 	}
 }

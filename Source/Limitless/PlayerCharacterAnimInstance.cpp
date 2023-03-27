@@ -12,9 +12,10 @@ void UPlayerCharacterAnimInstance::NativeInitializeAnimation() {
 
 	Super::NativeInitializeAnimation();
 	// Get and assign a pointer variable to our character and movement component
-	PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());\
+	PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 	// If we successfully get the pawn owner, get the movement component too.
-	if (PlayerCharacter) {
+	if (PlayerCharacter) 
+	{
 		PlayerCharacterMovementComponent = PlayerCharacter->GetCharacterMovement();
 	}
 }
@@ -24,7 +25,8 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float DeltaTime) {
 	Super::NativeUpdateAnimation(DeltaTime);
 
 	// If we successfully get the movement component, set the ground speed.
-	if (PlayerCharacterMovementComponent) {
+	if (PlayerCharacterMovementComponent) 
+	{
 		// Get the character's movement speed
 		MovementSpeed = UKismetMathLibrary::VSizeXY(PlayerCharacterMovementComponent->Velocity);
 		// Check are we falling?

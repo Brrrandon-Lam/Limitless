@@ -119,7 +119,8 @@ void APlayerCharacter::MoveForward(float Value)
 // Find the controller's right vector and apply movement in that direction.
 void APlayerCharacter::MoveRight(float Value) 
 {
-	if (CharacterActionState == EActionState::EAS_Unoccupied && Controller && Value != 0.f) {
+	if (CharacterActionState == EActionState::EAS_Unoccupied && Controller && Value != 0.f) 
+	{
 		
 		// Get the Yaw of the control rotation
 		const FRotator ControlRotation = GetControlRotation();
@@ -174,14 +175,16 @@ void APlayerCharacter::HeavyAttack()
 *  Current Requirements: Montage must be set, Character must have a weapon type equipped, Action state must be unoccupied.
 *
 */
-bool APlayerCharacter::CanAttack() {
+bool APlayerCharacter::CanAttack() 
+{
 	return AttackMontage
 		&& CharacterState != ECharacterState::ECS_Unarmed
 		&& CharacterActionState == EActionState::EAS_Unoccupied
 		&& EquippedWeapon->WeaponState == EWeaponState::EWS_InHand;
 }
 
-void APlayerCharacter::Sheathe() {
+void APlayerCharacter::Sheathe() 
+{
 	// Get the animation montage
 	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
 	// Early return if no equipped weapon or the current animation instance doesn't exist.
@@ -214,7 +217,8 @@ void APlayerCharacter::Sheathe() {
 
 // Can sheathe weapon if equip montage is set && character is unoccupied and armed
 
-bool APlayerCharacter::CanSheathe() {
+bool APlayerCharacter::CanSheathe() 
+{
 	return EquipMontage
 		&& (CharacterActionState == EActionState::EAS_Unoccupied)
 		&& EquippedWeapon;
