@@ -41,52 +41,78 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
-	// Calculate the dot product between the actor's forward vector and the hit vector to get an angle.
-	FVector ImpactLocation(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
+	// Calculate the angle
+	double angle = CalculateImpactAngle(ImpactPoint);
+	// Play directional damage animation
+	PlayHitDirectionAnimation(angle);
+
+	// TODO: Calculate damage taken
+
+}
+
+double AEnemy::CalculateImpactAngle(const FVector& ImpactPoint)
+{
+	// Calculate the dot product between the actor's forward vector and the hit vector to get an angle.;
 	FVector ForwardVector = GetActorForwardVector();
-	FVector ImpactVector = (ImpactLocation - GetActorLocation()).GetSafeNormal();
+	FVector Impact(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
+	FVector ImpactVector = (Impact - GetActorLocation()).GetSafeNormal();
 
 	// Dot product returns cos(theta), return arccos(theta) and convert to degrees from the dot product.
 	double angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ForwardVector, ImpactVector)));
 
 	// Using the cross product between the forward vector and the hit vector, determine whether the angle is positive or negative.
 	FVector ImpactCrossProduct = FVector::CrossProduct(ForwardVector, ImpactVector);
+
 	// Is the orthogonal vector facing up or down?
-	if (ImpactCrossProduct.Z < 0) 
+	if (ImpactCrossProduct.Z < 0)
 	{
 		angle *= -1.0;
 	}
+
+	return angle;
+
+	/* -- DEBUGGING  
 	UE_LOG(LogTemp, Warning, TEXT("Hit Angle: %f"), angle);
-	
-	// DEBUGGING
-	//DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 10, FColor::Green, true);
-	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForwardVector * 60.f, 5.0f, FColor::Red, true);
-	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactVector * 60.f, 5.0f, FColor::Green, true);
-	//DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactCrossProduct * 60.f, 5.0f, FColor::Blue, true);
-	
-	if (!GEngine) 
+	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 10, FColor::Green, true);
+	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForwardVector * 60.f, 5.0f, FColor::Red, true);
+	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactVector * 60.f, 5.0f, FColor::Green, true);
+	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactCrossProduct * 60.f, 5.0f, FColor::Blue, true); -- */
+}
+
+void AEnemy::PlayHitReactionMontage(const FName Section)
+{
+	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
+	if (CurrentInstance && HitReactionMontage)
+	{
+		CurrentInstance->Montage_Play(HitReactionMontage);
+		CurrentInstance->Montage_JumpToSection(Section, HitReactionMontage);
+	}
+}
+
+void AEnemy::PlayHitDirectionAnimation(const double angle)
+{
+	if (!GEngine)
 	{
 		return;
 	}
 	// Print Front, Back, Left, Right depending on the angle.
 	// Front: -45 <= x <= 45
 	if (angle >= -45 && angle <= 45) {
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, FString("Hit from the front"));
+		PlayHitReactionMontage(FName("FrontHitReaction"));
 	}
 	// Back: Angle is greater than 135 or less than -135
 	else if (angle >= 135 || angle <= -135) {
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, FString("Hit from the back"));
+		PlayHitReactionMontage(FName("BackHitReaction"));
 	}
 	// Left: -135 < x < -45
 	else if (angle > -135 && angle < -45) {
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, FString("Hit from the left"));
+		PlayHitReactionMontage(FName("LeftHitReaction"));
 	}
 	// Right: 45 < x < 135
 	else if (angle > 45 && angle < 135) {
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Red, FString("Hit from the right"));
+		PlayHitReactionMontage(FName("RightHitReaction"));
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, FString("ERROR"));
 	}
 }
-

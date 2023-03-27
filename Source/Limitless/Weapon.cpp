@@ -62,6 +62,11 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	FVector EndLocation = BoxTraceEnd->GetComponentLocation();
 	FVector HalfSize = FVector(2.5, 2.5, 2.5);
 	TArray<AActor*> ActorsToIgnore{ this };
+
+	for (AActor* Actor : IgnoreActors) {
+		ActorsToIgnore.AddUnique(Actor);
+	}
+
 	FHitResult HitResult;
 
 	bool bSuccess = UKismetSystemLibrary::BoxTraceSingle(this, StartLocation,EndLocation,HalfSize,WeaponBoxCollider->GetComponentRotation(),ETraceTypeQuery::TraceTypeQuery1,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true,FLinearColor::Red,FLinearColor::Green,2.0f);
@@ -73,6 +78,7 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 		// If the object hit can be casted to Hit Interface
 		if (HitObject)
 		{
+			IgnoreActors.AddUnique(HitResult.GetActor());
 			HitObject->GetHit(HitResult.ImpactPoint);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("HIT OBJECT"));

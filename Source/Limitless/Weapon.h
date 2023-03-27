@@ -47,6 +47,9 @@ protected:
 	UFUNCTION()
 	void OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(BlueprintReadWrite)
+	TArray<AActor*> IgnoreActors;
+
 private:
 	// Start and end variables for our trace
 	UPROPERTY(VisibleAnywhere)

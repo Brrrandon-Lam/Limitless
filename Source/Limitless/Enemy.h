@@ -7,6 +7,8 @@
 #include "HitInterface.h"
 #include "Enemy.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
 class LIMITLESS_API AEnemy : public ACharacter, public IHitInterface
 {
@@ -24,9 +26,17 @@ public:
 
 	virtual void GetHit(const FVector& ImpactPoint) override;
 
+	double CalculateImpactAngle(const FVector& ImpactPoint);
+
+	void PlayHitReactionMontage(const FName Section);
+	void PlayHitDirectionAnimation(const double angle);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* HitReactionMontage;
 
 
 };
