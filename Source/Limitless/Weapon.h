@@ -50,6 +50,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<AActor*> IgnoreActors;
 
+	// Function implemented on Blueprints side
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFieldSystem(FVector ImpactPoint);
+
+
 private:
 	// Start and end variables for our trace
 	UPROPERTY(VisibleAnywhere)

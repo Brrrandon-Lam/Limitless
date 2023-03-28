@@ -63,7 +63,8 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	FVector HalfSize = FVector(2.5, 2.5, 2.5);
 	TArray<AActor*> ActorsToIgnore{ this };
 
-	for (AActor* Actor : IgnoreActors) {
+	for (AActor* Actor : IgnoreActors) 
+	{
 		ActorsToIgnore.AddUnique(Actor);
 	}
 
@@ -81,7 +82,10 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 			IgnoreActors.AddUnique(HitResult.GetActor());
 			HitObject->GetHit(HitResult.ImpactPoint);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("HIT OBJECT"));
+		// Generate a field system for destructible geometry.
+		CreateFieldSystem(HitResult.ImpactPoint);
+
+		// UE_LOG(LogTemp, Warning, TEXT("HIT OBJECT"));
 		
 	}
 

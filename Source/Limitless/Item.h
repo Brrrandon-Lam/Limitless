@@ -37,7 +37,6 @@ protected:
 
 private:
 	
-
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* SphereComponent;
 
