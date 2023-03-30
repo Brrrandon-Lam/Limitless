@@ -1,8 +1,12 @@
 This repo only version controls the source code.
 
-Limitless is a currently in-progress Third Person ARPG prototype developed by Brandon Lam. Links to assets used are credited at the bottom of the README. 
-The goal of this project is primarily for learning to recreate features heavily inspired by FromSoftware, creator of the Dark Souls franchise, which is one of my
-favorite games to date. This repository contains images of the features I've currently implemented and the source code that I've written so far. A full video will be available on YouTube as the prototype nears completion and I decide to move on to another project to continue learning.
+YouTube Demo: Pending
+
+Limitless is a currently in-progress Third Person ARPG prototype developed by Brandon Lam. 
+Links to assets used are credited at the bottom of the README. 
+The goal of this project is primarily for learning to recreate features heavily inspired by FromSoftware, creator of the Dark Souls franchise. 
+This repository contains images of the features I've currently implemented and the source code that I've written so far. 
+A full video will be available on YouTube as the prototype nears completion and I decide to move on to another project to continue learning.
 
 Player Controls
 Navigate the world using the WASD keys.
@@ -16,8 +20,8 @@ Animations:
 Animations are primarily developed on the Blueprints side, making use of animation blueprints to play a wide variety of animations.
 At the moment, there are animations for the player attacking, moving, jumping and for when they are standing on non-level surfaces by using inverse kinematics.
 Inverse kinematics animations were determined by using virtual bones and sphere traces to determine how to properly place the actual legs of the main character.
-Some animations came from the Valley of the Ancients project and belong to the Echo player character, while other animations were imported from Mixamo and
-set to be used by the Echo character via animation retargeting, allowing an animation to be reused between different skeletons.
+Some animations came from the Valley of the Ancients project and belong to the Echo player character
+Other animations were imported from Mixamo and set to be used by the Echo character via animation retargeting.
 
 Combat:
 Combat mechanics are currently unfinished, but at the moment the player is able to attack enemies with their sword.
