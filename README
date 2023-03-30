@@ -1,1 +1,47 @@
 This repo only version controls the source code.
+
+Limitless is a currently in-progress Third Person ARPG prototype developed by Brandon Lam. Links to assets used are credited at the bottom of the README
+The goal of this project is primarily for learning to recreate features heavily inspired by FromSoftware, creator of the Dark Souls franchise, which is one of my
+favorite games to date. This repository contains images of the features I've currently implemented and the source code that I've written so far. A full video will 
+be available on YouTube as the prototype nears completion and I decide to move on to another project to continue learning.
+
+Player Controls
+Navigate the world using the WASD keys.
+Players can jump by using the spacebar.
+The left mouse button to perform a vertical strike.
+The right mouse button can be used to perform a horizontal strike.
+Pressing E lets the player pick up items in the world, including their sword.
+With a weapon equipped, players can press the Z key to sheathe and unsheathe a currently equipped weapon.
+
+Animations:
+Animations are primarily developed on the Blueprints side, making use of animation blueprints to play a wide variety of animations.
+At the moment, there are animations for the player attacking, moving, jumping and for when they are standing on non-level surfaces by using inverse kinematics.
+Inverse kinematics animations were determined by using virtual bones and sphere traces to determine how to properly place the actual legs of the main character.
+Some animations came from the Valley of the Ancients project and belong to the Echo player character, while other animations were imported from Mixamo and
+set to be used by the Echo character via animation retargeting, allowing an animation to be reused between different skeletons.
+
+Combat:
+Combat mechanics are currently unfinished, but at the moment the player is able to attack enemies with their sword.
+By using a box collider and box trace, we are able to detect when enemies are hit, and by using vector math we are able to
+calculate the direction from which enemies are hit to play the according animation. Enemies currently are able to be hit from
+the front, back, left and right sides.
+
+Features to be implemented involving combat include enemy AI behavior, and stats including health, stamina and more interesting damage calculations
+including weapon stats and enemy armor values.
+
+Destructibles:
+Currently the world has a few different types of destructibles that the player can hit with their weapon, causing them to break.
+This was accomplished using Unreal Engine's chaos physics and geometry collections.
+
+Thanks to:
+Epic Games for the character model from Valley of the Ancients and the Unreal Game Engine
+https://www.unrealengine.com/marketplace/en-US/product/ancient-game-01?sessionInvalidated=true
+
+Tidal Flask Studios for the Fantastic Village Pack available on the Epic Games Marketplace
+https://www.unrealengine.com/marketplace/en-US/product/fantastic-village-pack
+
+StylArts for Stylized Fantasy Provencal asset pack available on the Epic Games Marketplace
+https://www.unrealengine.com/marketplace/en-US/product/stylized-fantasy-provencal
+
+Mixamo for the test dummy and animations
+https://www.mixamo.com/#/
