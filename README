@@ -2,9 +2,7 @@ This repo only version controls the source code.
 
 Limitless is a currently in-progress Third Person ARPG prototype developed by Brandon Lam. Links to assets used are credited at the bottom of the README. 
 The goal of this project is primarily for learning to recreate features heavily inspired by FromSoftware, creator of the Dark Souls franchise, which is one of my
-favorite games to date. 
-This repository contains images of the features I've currently implemented and the source code that I've written so far. 
-A full video will be available on YouTube as the prototype nears completion and I decide to move on to another project to continue learning.
+favorite games to date. This repository contains images of the features I've currently implemented and the source code that I've written so far. A full video will be available on YouTube as the prototype nears completion and I decide to move on to another project to continue learning.
 
 Player Controls
 Navigate the world using the WASD keys.
