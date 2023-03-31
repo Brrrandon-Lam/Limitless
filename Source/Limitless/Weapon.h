@@ -29,7 +29,7 @@ class LIMITLESS_API AWeapon : public AItem
 
 public:
 	// Need the character mesh component
-	void Equip(USceneComponent* InParent, FName SocketName);
+	void Equip(USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator);
 	void Unequip(USceneComponent* InParent, FName SocketName);
 
 	// Constructor
@@ -65,5 +65,8 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* WeaponBoxCollider;
+
+	UPROPERTY(EditAnywhere)
+	float WeaponBaseDamage;
 	
 };

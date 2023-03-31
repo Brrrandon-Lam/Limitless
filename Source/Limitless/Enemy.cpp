@@ -4,6 +4,9 @@
 #include "Enemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "Components/Attributes.h"
+#include "Components/WidgetComponent.h"
+#include "HUD/HealthbarComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -16,12 +19,23 @@ AEnemy::AEnemy()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
+	// Initialize Enemy Components
+	AttributesComponent = CreateDefaultSubobject<UAttributes>(TEXT("Attributes"));
+
+	HealthbarComponent = CreateDefaultSubobject<UHealthbarComponent>(TEXT("Health Bar"));
+	HealthbarComponent->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (HealthbarComponent)
+	{
+		HealthbarComponent->SetHealthPercentage(1.0f);
+	}
+
 	
 }
 
@@ -121,3 +135,26 @@ void AEnemy::PlayHitDirectionAnimation(const double angle)
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, FString("ERROR"));
 	}
 }
+
+// TakeDamage implementation for the Enemy class
+
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// Check that Attributes and Healthbar Widget exist
+	if (AttributesComponent && HealthbarComponent)
+	{
+		// Send the amount of damage received.
+		AttributesComponent->ReceiveDamage(DamageAmount);
+		// Update health percent.
+		HealthbarComponent->SetHealthPercentage(AttributesComponent->GetHealthPercentage());
+
+	}
+	// If the health drops to 0 or lower, play a death animation
+	if (AttributesComponent->GetCurrentHealth() == 0) {
+		UE_LOG(LogTemp, Warning, TEXT("ENEMY DIED!"));
+	}
+
+	// Return the amount of damage applied.
+	return DamageAmount;
+}
+

@@ -63,7 +63,7 @@ void APlayerCharacter::EquipButtonPressed()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon) 
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 		// We only have a 2H weapon, so for now just set the state to 2H
 		CharacterState = ECharacterState::ECS_TwoHanded;
 		// Set the equipped weapon
@@ -247,7 +247,7 @@ void APlayerCharacter::UnsheatheWeapon()
 {
 	if (EquippedWeapon) 
 	{
-		EquippedWeapon->Equip(GetMesh(), FName("SpineSocket"));
+		EquippedWeapon->Equip(GetMesh(), FName("SpineSocket"), this, this);
 	}
 }
 

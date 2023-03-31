@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "HitInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
 {
@@ -24,11 +25,17 @@ AWeapon::AWeapon()
 
 	WeaponBoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnWeaponHitboxBeginOverlap);
 
+	WeaponBaseDamage = 25.0f;
+
 }
 
 // Attach to the right hand and set the state
-void AWeapon::Equip(USceneComponent* InParent, FName SocketName)
+void AWeapon::Equip(USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator)
 {
+	// Set the owner and instigator
+	SetOwner(NewOwner);
+	SetInstigator(NewInstigator);
+
 	FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);
 	ItemMesh->AttachToComponent(InParent, TransformRules, FName(TEXT("RightHandSocket")));
 	WeaponState = EWeaponState::EWS_InHand;
@@ -81,6 +88,13 @@ void AWeapon::OnWeaponHitboxBeginOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			IgnoreActors.AddUnique(HitResult.GetActor());
 			HitObject->GetHit(HitResult.ImpactPoint);
+			UGameplayStatics::ApplyDamage(
+				HitResult.GetActor(),
+				WeaponBaseDamage,
+				GetInstigator()->GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
 		}
 		// Generate a field system for destructible geometry.
 		CreateFieldSystem(HitResult.ImpactPoint);

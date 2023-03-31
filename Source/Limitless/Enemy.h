@@ -8,6 +8,8 @@
 #include "Enemy.generated.h"
 
 class UAnimMontage;
+class UAttributes;
+class UHealthbarComponent;
 
 UCLASS()
 class LIMITLESS_API AEnemy : public ACharacter, public IHitInterface
@@ -30,6 +32,7 @@ public:
 
 	void PlayHitReactionMontage(const FName Section);
 	void PlayHitDirectionAnimation(const double angle);
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,5 +41,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactionMontage;
 
+private:
+
+	UPROPERTY(VisibleAnywhere)
+	UHealthbarComponent* HealthbarComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UAttributes* AttributesComponent;
 
 };
