@@ -7,6 +7,8 @@
 #include "Components/Attributes.h"
 #include "Components/WidgetComponent.h"
 #include "HUD/HealthbarComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "AIController.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -24,6 +26,16 @@ AEnemy::AEnemy()
 
 	HealthbarComponent = CreateDefaultSubobject<UHealthbarComponent>(TEXT("Health Bar"));
 	HealthbarComponent->SetupAttachment(GetRootComponent());
+
+	// Don't use controller rotation, orient character to movement.
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	CurrentPatrolIndex = 0;
+	
 }
 
 // Called when the game starts or when spawned
@@ -35,15 +47,24 @@ void AEnemy::BeginPlay()
 	{
 		HealthbarComponent->SetHealthPercentage(1.0f);
 	}
-
-	
+	EnemyController = Cast<AAIController>(GetController());
+	if (PatrolPoint && EnemyController)
+	{
+		MoveToPatrolPoint(PatrolPoint);
+	}
 }
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	// Only update and move when we encroach on a patrol point.
+	if (WithinRange(PatrolPoint, PatrolRadius))
+	{
+		SelectPatrolPoint();
+		MoveToPatrolPoint(PatrolPoint);
+	}
 }
 
 // Called to bind functionality to input
@@ -158,3 +179,37 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	return DamageAmount;
 }
 
+// Given a target, move to it.
+void AEnemy::MoveToPatrolPoint(AActor* Target)
+{
+	// We cannot execute this code without both a target and an AI controller.
+	if (!Target || !EnemyController) { return; }
+	
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor(Target);
+	MoveRequest.SetAcceptanceRadius(20.0f);
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+	EnemyController->MoveTo(MoveRequest);
+	
+}
+
+void AEnemy::SelectPatrolPoint()
+{
+	if (CurrentPatrolIndex >= PatrolPath.Num() - 1)
+	{
+		CurrentPatrolIndex = 0;
+		PatrolPoint = PatrolPath[0];
+	}
+	else
+	{
+		CurrentPatrolIndex += 1;
+		PatrolPoint = PatrolPath[CurrentPatrolIndex];
+	}
+}
+
+// Potentially abstract to a math header.
+bool AEnemy::WithinRange(AActor* Target, double Range)
+{
+	const double DistToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
+	return DistToTarget <= Range;
+}
