@@ -63,8 +63,13 @@ void AEnemy::Tick(float DeltaTime)
 	if (WithinRange(PatrolPoint, PatrolRadius))
 	{
 		SelectPatrolPoint();
-		MoveToPatrolPoint(PatrolPoint);
+		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerEnd, FMath::FRandRange(PatrolWaitMin, PatrolWaitMax));
 	}
+}
+
+void AEnemy::PatrolTimerEnd()
+{
+	MoveToPatrolPoint(PatrolPoint);
 }
 
 // Called to bind functionality to input
@@ -213,3 +218,4 @@ bool AEnemy::WithinRange(AActor* Target, double Range)
 	const double DistToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
 	return DistToTarget <= Range;
 }
+

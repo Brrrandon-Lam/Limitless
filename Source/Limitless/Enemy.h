@@ -37,6 +37,8 @@ public:
 
 	bool WithinRange(AActor* Target, double Range);
 
+	void PatrolTimerEnd();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -48,9 +50,6 @@ protected:
 	// Ensure the initial patrol point is set on the instance!
 	UPROPERTY(EditInstanceOnly, Category = "AI Movement")
 	AActor* PatrolPoint;
-
-	UPROPERTY(VisibleAnywhere, Category = "AI Movement")
-	AActor* NextPatrolPoint;
 
 	// Ensure all of the actor's patrol points are set on the instance!
 	UPROPERTY(EditInstanceOnly, Category = "AI Movement")
@@ -76,5 +75,11 @@ private:
 	UPROPERTY()
 	int CurrentPatrolIndex = 0;
 
+	UPROPERTY(EditInstanceOnly, Category = "AI Movement")
+	float PatrolWaitMin = 5.0f;
+	UPROPERTY(EditInstanceOnly, Category = "AI Movement")
+	float PatrolWaitMax = 10.0f;
+
+	FTimerHandle PatrolTimer;
 
 };
