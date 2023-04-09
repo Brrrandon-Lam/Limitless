@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DestructibleObject.h"
+#include "Items/DestructibleObject.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 
 // Sets default values

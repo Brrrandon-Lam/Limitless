@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+//#include "GameFramework/Character.h"
+#include "Character/BaseCharacter.h"
 #include "CharacterState.h"
 #include "PlayerCharacter.generated.h"
 
@@ -13,10 +14,9 @@ class USpringArmComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
-class AWeapon;
 
 UCLASS()
-class LIMITLESS_API APlayerCharacter : public ACharacter
+class LIMITLESS_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -44,9 +44,11 @@ protected:
 	void MoveRight(float Value);
 	void LookUp(float Value);
 	void LookRight(float Value);
-	void Attack();
+	void Attack() override;
 	void HeavyAttack();
 	void Sheathe();
+
+	virtual void GetHit(const FVector& ImpactPoint) override;
 
 	UFUNCTION(BlueprintCallable)
 	void SheatheWeapon();
@@ -58,20 +60,11 @@ protected:
 	// Check whether we can sheathe/unsheathe
 	bool CanSheathe();
 
-	// Toggle box collider of the currently equipped weapon.
-	UFUNCTION(BlueprintCallable)
-	void ToggleWeaponCollision(ECollisionEnabled::Type CollisionsToggle);
-
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState;
 
 	UPROPERTY(BlueprintReadWrite)
 	EActionState CharacterActionState;
-
-	UPROPERTY(BlueprintReadOnly)
-	AWeapon* EquippedWeapon;
-
-
 
 private:
 
@@ -89,10 +82,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UGroomComponent* Eyebrows;
-
-	/* Montages */
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* AttackMontage;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EquipMontage;

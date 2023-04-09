@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+// Equipment types
+
 UENUM(BlueprintType)
 enum class ECharacterState : uint8
 {
@@ -12,6 +14,9 @@ enum class ECharacterState : uint8
 	ECS_TwoHanded UMETA(DisplayName = "TwoHanded")
 };
 
+
+// States for the player character
+
 UENUM(BlueprintType)
 enum class EActionState : uint8
 {
@@ -19,4 +24,14 @@ enum class EActionState : uint8
 	EAS_Attacking UMETA(DisplayName = "Attacking"),
 	// General Occupied
 	EAS_Occupied UMETA(DisplayName = "Occupied")
+};
+
+// States for the enemy AI to potentially be in.
+
+UENUM(BlueprintType)
+enum class EEnemyState : uint8
+{
+	EES_Patrolling UMETA(DisplayName = "Patrolling"),
+	EES_Chasing UMETA(DisplayName = "Chasing"),
+	EES_Attacking UMETA(DisplayName = "Attacking")
 };

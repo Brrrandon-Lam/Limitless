@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemy.h"
+#include "Character/Enemy.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
-#include "Components/Attributes.h"
 #include "Components/WidgetComponent.h"
-#include "HUD/HealthbarComponent.h"
+#include "Components/HealthbarComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
+#include "Perception/PawnSensingComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -21,11 +21,12 @@ AEnemy::AEnemy()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
-	// Initialize Enemy Components
-	AttributesComponent = CreateDefaultSubobject<UAttributes>(TEXT("Attributes"));
-
 	HealthbarComponent = CreateDefaultSubobject<UHealthbarComponent>(TEXT("Health Bar"));
 	HealthbarComponent->SetupAttachment(GetRootComponent());
+	
+	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("Pawn Sensing Component"));
+	PawnSensingComponent->SightRadius = 4000;
+	PawnSensingComponent->SetPeripheralVisionAngle(45.0f);
 
 	// Don't use controller rotation, orient character to movement.
 	bUseControllerRotationYaw = false;
@@ -35,6 +36,8 @@ AEnemy::AEnemy()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	CurrentPatrolIndex = 0;
+
+	CombatTarget = nullptr;
 	
 }
 
@@ -50,7 +53,11 @@ void AEnemy::BeginPlay()
 	EnemyController = Cast<AAIController>(GetController());
 	if (PatrolPoint && EnemyController)
 	{
-		MoveToPatrolPoint(PatrolPoint);
+		MoveToTarget(PatrolPoint);
+	}
+	if (PawnSensingComponent)
+	{
+		PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
 	}
 }
 
@@ -58,18 +65,36 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	// Only update and move when we encroach on a patrol point.
+
+	// Combat Mode
+	if (EnemyState != EEnemyState::EES_Patrolling)
+	{
+		CombatMode();
+	}
+
+	// Patrol Mode
+	else 
+	{
+		PatrolMode();
+		
+	}
+}
+
+void AEnemy::PatrolMode()
+{
+	// If we're near a patrol point
 	if (WithinRange(PatrolPoint, PatrolRadius))
 	{
+		// Select a patrol point
 		SelectPatrolPoint();
+		// Move to the patrol point
 		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerEnd, FMath::FRandRange(PatrolWaitMin, PatrolWaitMax));
 	}
 }
 
 void AEnemy::PatrolTimerEnd()
 {
-	MoveToPatrolPoint(PatrolPoint);
+	MoveToTarget(PatrolPoint);
 }
 
 // Called to bind functionality to input
@@ -90,110 +115,43 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 
 }
 
-double AEnemy::CalculateImpactAngle(const FVector& ImpactPoint)
-{
-	// Calculate the dot product between the actor's forward vector and the hit vector to get an angle.;
-	FVector ForwardVector = GetActorForwardVector();
-	FVector Impact(ImpactPoint.X, ImpactPoint.Y, GetActorLocation().Z);
-	FVector ImpactVector = (Impact - GetActorLocation()).GetSafeNormal();
-
-	// Dot product returns cos(theta), return arccos(theta) and convert to degrees from the dot product.
-	double angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ForwardVector, ImpactVector)));
-
-	// Using the cross product between the forward vector and the hit vector, determine whether the angle is positive or negative.
-	FVector ImpactCrossProduct = FVector::CrossProduct(ForwardVector, ImpactVector);
-
-	// Is the orthogonal vector facing up or down?
-	if (ImpactCrossProduct.Z < 0)
-	{
-		angle *= -1.0;
-	}
-
-	return angle;
-
-	/* -- DEBUGGING  
-	UE_LOG(LogTemp, Warning, TEXT("Hit Angle: %f"), angle);
-	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 10, FColor::Green, true);
-	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForwardVector * 60.f, 5.0f, FColor::Red, true);
-	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactVector * 60.f, 5.0f, FColor::Green, true);
-	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ImpactCrossProduct * 60.f, 5.0f, FColor::Blue, true); -- */
-}
-
-void AEnemy::PlayHitReactionMontage(const FName Section)
-{
-	UAnimInstance* CurrentInstance = GetMesh()->GetAnimInstance();
-	if (CurrentInstance && HitReactionMontage)
-	{
-		CurrentInstance->Montage_Play(HitReactionMontage);
-		CurrentInstance->Montage_JumpToSection(Section, HitReactionMontage);
-	}
-}
-
-void AEnemy::PlayHitDirectionAnimation(const double angle)
-{
-	if (!GEngine)
-	{
-		return;
-	}
-	// Print Front, Back, Left, Right depending on the angle.
-	// Front: -45 <= x <= 45
-	if (angle >= -45 && angle <= 45) 
-	{
-		PlayHitReactionMontage(FName("FrontHitReaction"));
-	}
-	// Back: Angle is greater than 135 or less than -135
-	else if (angle >= 135 || angle <= -135) 
-	{
-		PlayHitReactionMontage(FName("BackHitReaction"));
-	}
-	// Left: -135 < x < -45
-	else if (angle > -135 && angle < -45) 
-	{
-		PlayHitReactionMontage(FName("LeftHitReaction"));
-	}
-	// Right: 45 < x < 135
-	else if (angle > 45 && angle < 135) 
-	{
-		PlayHitReactionMontage(FName("RightHitReaction"));
-	}
-	else 
-	{
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2.0f, FColor::Cyan, FString("ERROR"));
-	}
-}
-
 // TakeDamage implementation for the Enemy class
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// Check that Attributes and Healthbar Widget exist
-	if (AttributesComponent && HealthbarComponent)
+	if (Attributes && HealthbarComponent)
 	{
 		// Send the amount of damage received.
-		AttributesComponent->ReceiveDamage(DamageAmount);
+		Attributes->ReceiveDamage(DamageAmount);
 		// Update health percent.
-		HealthbarComponent->SetHealthPercentage(AttributesComponent->GetHealthPercentage());
+		HealthbarComponent->SetHealthPercentage(Attributes->GetHealthPercentage());
 
 	}
 	// If the health drops to 0 or lower, play a death animation
-	if (AttributesComponent->GetCurrentHealth() == 0) {
+	if (Attributes->GetCurrentHealth() == 0) {
 		UE_LOG(LogTemp, Warning, TEXT("ENEMY DIED!"));
 	}
+
+	// Aggro to whatever damages the enemy
+	CombatTarget = EventInstigator->GetPawn();
+	EnemyState = EEnemyState::EES_Chasing;
+	MoveToTarget(CombatTarget);
 
 	// Return the amount of damage applied.
 	return DamageAmount;
 }
 
 // Given a target, move to it.
-void AEnemy::MoveToPatrolPoint(AActor* Target)
+void AEnemy::MoveToTarget(AActor* Target)
 {
 	// We cannot execute this code without both a target and an AI controller.
 	if (!Target || !EnemyController) { return; }
 	
+	// Create a move request and move to the target.
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(20.0f);
-	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+	MoveRequest.SetAcceptanceRadius(10.0f);
 	EnemyController->MoveTo(MoveRequest);
 	
 }
@@ -212,10 +170,67 @@ void AEnemy::SelectPatrolPoint()
 	}
 }
 
-// Potentially abstract to a math header.
 bool AEnemy::WithinRange(AActor* Target, double Range)
 {
+	if (!Target)
+	{
+		return false;
+	}
 	const double DistToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
 	return DistToTarget <= Range;
 }
 
+// Delegate function callback for Pawn Sensing Component, sets the pawn's mode to chasing only if the enemy is in patrolling mode and if the enemy detected a player.
+void AEnemy::PawnSeen(APawn* SensedPawn)
+{
+	// Only move to target if we're not alrady chasing.
+	if (EnemyState == EEnemyState::EES_Chasing)
+	{ 
+		return;
+	}
+
+	if(SensedPawn->ActorHasTag(FName("Player")))
+	{
+		GetWorldTimerManager().ClearTimer(PatrolTimer);
+		GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+		CombatTarget = SensedPawn;
+		// If attacking, pawn seen doesn't need to do anything else.
+		if (EnemyState != EEnemyState::EES_Attacking)
+		{
+			EnemyState = EEnemyState::EES_Chasing;
+			MoveToTarget(CombatTarget);
+		}
+		
+	}
+}
+
+void AEnemy::CombatMode()
+{
+	DrawDebugSphere(GetWorld(), GetActorLocation(), CombatRadius, 15, FColor::Red);
+	// Return to patrol mode if we exit a combat radius
+	if (!WithinRange(CombatTarget, CombatRadius))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Return to Patrolling"));
+		// Unset combat target, set state to patrolling, move to the last stored patrol point.
+		CombatTarget = nullptr;
+		EnemyState = EEnemyState::EES_Patrolling;
+		GetCharacterMovement()->MaxWalkSpeed = 150.0f;
+		MoveToTarget(PatrolPoint);
+		UE_LOG(LogTemp, Warning, TEXT("Chasing - Combat Mode"));
+	}
+	// If we're not already chasing and we're not in attack range
+	else if (!WithinRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Chasing)
+	{
+		// Continue chasing the character until we enter attack range.
+		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = 350.0f;
+		MoveToTarget(CombatTarget);
+	}
+	else if (WithinRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Attacking)
+	{
+		// Attack the character
+		EnemyState = EEnemyState::EES_Attacking;
+		UE_LOG(LogTemp, Warning, TEXT("Attacking!"));
+		// Play an attack montage
+	}
+}

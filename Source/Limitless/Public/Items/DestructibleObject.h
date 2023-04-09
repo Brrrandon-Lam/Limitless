@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "HitInterface.h"
+#include "Interfaces/HitInterface.h"
 #include "DestructibleObject.generated.h"
 
 class UGeometryCollectionComponent;

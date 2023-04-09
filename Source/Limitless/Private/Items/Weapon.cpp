@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Weapon.h"
+#include "Items/Weapon.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "HitInterface.h"
+#include "Interfaces/HitInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 AWeapon::AWeapon()
